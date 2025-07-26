@@ -1,0 +1,10 @@
+aerich
+asyncpg
+email-validator
+fastapi
+passlib[bcrypt]
+python-jose[cryptography]
+pydantic-settings
+tortoise-orm
+tomlkit
+uvicorn
