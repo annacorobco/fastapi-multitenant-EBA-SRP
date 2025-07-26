@@ -5,6 +5,7 @@ from tortoise.transactions import in_transaction
 from app.db.tenant import init_tenant_db
 from app.db.models.tenant_models import TenantUser
 from app.repositories.tenant_repository import OrganizationRepository, TenantUserRepository
+from app.logging_config import logger
 
 
 class TenantOnboardingService:
@@ -44,8 +45,10 @@ class TenantOnboardingService:
             await init_tenant_db(db_name)
             await self.tenant_repo.create(email=self.current_user.email,
                                           hashed_password=self.current_user.hashed_password)
+            logger.info("Tenant DB was initialized")
             return org
         except Exception as e:
+            logger.exception(e)
             # rollback org entry if tenant DB creation fails
             await self.org_repo.delete_by_id(org_id=org.id)
             raise HTTPException(
