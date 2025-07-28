@@ -1,15 +1,7 @@
-from passlib.context import CryptContext
-
 from app.events.base_event import EventDispatcher
 from app.events.core_user_events import CoreUserCreatedEvent
 from app.repositories.core_user_repository import CoreUserRepository
 from app.services.auth_service import AuthService
-
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-SECRET_KEY = "supersecret"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 
 class CoreUserService:
