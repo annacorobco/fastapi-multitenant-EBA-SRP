@@ -11,14 +11,16 @@ services:
       - .:/usr/src/app
     command: >
       sh -c "
-      aerich init -t tortoise_config.TORTOISE_ORM || true &&
-      aerich init-db || true &&
-      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      sh ./wait-for-it.sh rabbitmq:5672 60 \
+          && aerich init -t tortoise_config.TORTOISE_ORM || true \
+          && aerich init-db || true \
+          && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
       "
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - rabbitmq
     env_file:
       - .env.dev
 
@@ -33,5 +35,58 @@ services:
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  redisinsight:
+    image: redislabs/redisinsight:2.70
+    container_name: redisinsight
+    ports:
+      - "8001:5540"
+    environment:
+      - REDISINSIGHT_ACCEPT_LICENSE=yes
+    volumes:
+      - redisinsight_data:/data
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - .env.rabbitmq.dev
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    command:  >
+      sh -c "wait-for-it.sh rabbitmq:5672 60 --strict -- 
+           celery -A app.celery_worker.celery_app worker --loglevel=DEBUG"
+    depends_on:
+      - app
+      - rabbitmq
+    env_file:
+      - .env.celery.dev
+
+  flower:
+    image: mher/flower
+    build:
+      context: .
+      dockerfile: Dockerfile.flower
+    env_file:
+      - .env.celery.dev
+    command: >
+      sh -c "sh ./wait-for-it.sh rabbitmq:5672 60 && celery flower"
+    ports:
+      - "5555:5555"
+    depends_on:
+      - rabbitmq
+
 volumes:
   postgres_data_dev:
+  redisinsight_data:

@@ -1,10 +1,13 @@
 aerich
+aio_pika
 asyncpg
+celery
 email-validator
 fastapi
 passlib[bcrypt]
 python-jose[cryptography]
 pydantic-settings
+redis[async]
 tortoise-orm
 tomlkit
 uvicorn

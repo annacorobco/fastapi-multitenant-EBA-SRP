@@ -5,7 +5,7 @@ from tortoise.transactions import in_transaction
 from app.db.tenant import init_tenant_db
 from app.db.models.tenant_models import TenantUser
 from app.repositories.tenant_repository import OrganizationRepository, TenantUserRepository
-from app.logging_config import logger
+from app.logger import logger
 
 
 class TenantOnboardingService:

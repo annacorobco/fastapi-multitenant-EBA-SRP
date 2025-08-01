@@ -72,3 +72,11 @@ or
 ```bash
 python migrate_tenants.py
 ```
+
+## Monitoring Tools
+### RabbitMQ UI
+http://localhost:15672
+### Celery Flower
+http://localhost:5555
+### RedisInsight
+http://localhost:8001
